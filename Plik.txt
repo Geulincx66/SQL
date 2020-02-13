@@ -1,0 +1,110 @@
+-- 1.
+SELECT contents.content_id, episode_list.season_num
+FROM contents
+INNER JOIN episode_list
+ON contents.content_id=episode_list.content_id
+WHERE episode_list.season_num <> 0;
+
+-- 2a.
+SELECT genres.name, contents.content_type
+FROM genres
+INNER JOIN content_genres
+ON genres.genre_id=content_genres.genre_id
+INNER JOIN contents 
+ON content_genres.content_id=contents.content_id
+ORDER BY genres.name ASC;
+
+-- 2b.
+SELECT COUNT(content_id) 
+FROM contents 
+WHERE total_episodes > 100;
+
+-- 3
+SELECT Distinct actors.name FROM actors 
+INNER JOIN content_actors ON actors.actor_id=content_actors.actor_id
+INNER JOIN contents ON content_actors.content_id=contents.content_id
+INNER JOIN content_genres ON contents.content_id=content_genres.content_id
+INNER JOIN genres ON content_genres.genre_id=genres.genre_id
+WHERE genres.name IN ('Comedy');
+
+-- 4
+SELECT directors.name as director, actors.name as actor, contents.title
+FROM actors
+INNER JOIN content_actors ON actors.actor_id = content_actors.actor_id
+INNER JOIN contents ON contents.content_id = content_actors.content_id
+INNER JOIN content_directors ON contents.content_id = content_directors.content_id
+INNER JOIN directors ON content_directors.content_id = directors.director_id
+WHERE directors.name = actors.name
+
+-- 5
+SELECT contents.title, AVG(episode_list.episode_rating) as average 
+FROM contents
+INNER JOIN episode_list
+ON contents.content_id=episode_list.content_id
+WHERE episode_list.episode_rating > average
+GROUP BY contents.title;
+
+
+Jeden:
+-- 1.
+
+-- SELECT COUNT(content_ratings.content_type_id), content_ratings.name
+--     FROM content_ratings
+--     GROUP BY content_ratings.content_type_id
+
+--     WHERE content_ratings.name LIKE 'TV%'
+
+
+-- 2.
+
+SELECT episode_list.episode_id, episode_list.episode_name
+    FROM episode_list
+    INNER JOIN contents ON episode_list.content_id = contents.content_id
+    INNER JOIN content_actors ON contents.content_id = content_actors.content_id
+    INNER JOIN actors ON content_actors.actor_id = actors.actor_id
+    WHERE actors.name LIKE 'M%'
+    GROUP BY episode_list.episode_id
+    ORDER BY episode_list.episode_score_votes DESC, episode_list.episode_id ASC
+    LIMIT 10
+
+-- 3.
+
+SELECT genres.name, COUNT(contents.content_id) as count
+    FROM contents
+    INNER JOIN content_genres ON contents.content_id = content_genres.content_id
+    INNER JOIN genres ON content_genres.genre_id = genres.genre_id
+    GROUP BY genres.name
+    ORDER BY count DESC
+
+
+ SELECT COUNT(content_id) as count, contents.play_time
+	FROM contents
+	GROUP BY contents.play_time
+	HAVING contents.play_time < TO_CHAR( INTERVAL '1h 0m 0s', 'HH24:MI:SS')
+	ORDER BY count;
+
+
+-- 4.
+SELECT directors.name, genres.name
+	FROM directors
+	INNER JOIN content_directors ON directors.director_id = content_directors.director_id
+	INNER JOIN contents ON content_directors.content_id = contents.content_id
+	INNER JOIN content_genres ON contents.content_id = content_genres.content_id
+	INNER JOIN genres ON content_genres.genre_id = genres.genre_id
+	WHERE genres.name IN ('Comedy', 'Sport', 'Family')
+
+-- 5.
+SELECT directors.name as director, actors.name as actor, contents.title
+	FROM actors
+	INNER JOIN content_actors ON actors.actor_id = content_actors.actor_id
+	INNER JOIN contents ON contents.content_id = content_actors.content_id
+	INNER JOIN content_directors ON contents.content_id = content_directors.content_id
+	INNER JOIN directors ON content_directors.content_id = directors.director_id
+	WHERE directors.name = actors.name
+
+-- 6.
+SELECT contents.title, AVG(episode_list.episode_rating) as average
+	FROM contents 
+	INNER JOIN episode_list ON contents.content_id = episode_list.content_id
+	WHERE episode_list.episode_rating > avegarge 
+	GROUP BY contents.title
